@@ -11,7 +11,7 @@ plugins {
     // alias(libs.plugins.kotlin.ksp)
 }
 
-val libVersion = "0.0.1"
+val libVersion = "0.1.0"
 
 android {
     compileSdk = 34
@@ -51,6 +51,7 @@ android {
         publishing {
             singleVariant("release") {
                 withSourcesJar()
+                withJavadocJar()
             }
         }
     }
