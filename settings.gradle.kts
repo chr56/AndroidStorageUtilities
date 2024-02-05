@@ -18,3 +18,4 @@ dependencyResolutionManagement {
     }
 }
 
+include(":storage")
