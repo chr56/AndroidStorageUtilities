@@ -1,0 +1,129 @@
+[versions]
+kotlin = "1.9.22"
+agp = "8.2.2"
+ksp = "1.9.22-1.0.17"
+versionChecker = "0.51.0"
+
+activity = "1.8.2"
+datastore = "1.0.0"
+compose = "1.6.0"
+composeCompiler = "1.5.8"
+coil = "2.5.0"
+room = "2.6.1"
+
+[plugins]
+
+androidGradlePlugin = { id = "com.android.application", version.ref = "agp" }
+androidGradlePluginLibrary = { id = "com.android.library", version.ref = "agp" }
+
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+versionChecker = { id = "com.github.ben-manes.versions", version.ref = "versionChecker" }
+
+
+
+
+[libraries]
+
+androidx-core = "androidx.core:core-ktx:1.12.0"
+androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
+androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
+androidx-documentfile = "androidx.documentfile:documentfile:1.0.1"
+androidx-fragment = "androidx.fragment:fragment-ktx:1.6.2"
+androidx-lifecycle_runtime = "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+
+androidx-annotation = "androidx.annotation:annotation:1.7.0"
+androidx-preference = "androidx.preference:preference-ktx:1.2.0"
+
+androidx-recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
+
+androidx-constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
+androidx-percentlayout = "androidx.percentlayout:percentlayout:1.0.0"
+androidx-swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+androidx-media = "androidx.media:media:1.6.0"
+androidx-cardview = "androidx.cardview:cardview:1.0.0"
+androidx-palette = "androidx.palette:palette-ktx:1.0.0"
+
+#
+# Room
+#
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+
+#
+# Datastore
+#
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastore" }
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastore" }
+
+
+google-material = "com.google.android.material:material:1.9.0"
+
+#
+# Jetpack Compose
+#
+
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose" }
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
+compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose" }
+
+compose-activity = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+
+#
+# popular
+#
+
+okhttp3 = "com.squareup.okhttp3:okhttp:4.12.0"
+retrofit2 = "com.squareup.retrofit2:retrofit:2.9.0"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
+kotlinx-serialization-ktoml = "com.akuleshov7:ktoml-core:0.5.0"
+kotlinx-serialization-kaml = "com.charleskorn.kaml:kaml:0.55.0"
+coil = { module = "io.coil-kt:coil", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt:coil-compose-base", version.ref = "coil" }
+koin = "io.insert-koin:koin-android:3.5.0"
+kotlinx-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+
+#
+# Gradle API
+#
+# androidGradlePluginAPI = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
+
+#
+# other
+#
+
+menuDsl = "io.github.chr56:android-menu-dsl:0.1.3"
+
+[bundles]
+
+compose = [
+    "compose-runtime",
+    "compose-foundation",
+    "compose-ui",
+    "compose-material",
+    "compose-activity",
+]
+
+androidx-datastore = [
+    "androidx-datastore-preferences",
+    "androidx-datastore-preferences-core",
+    "androidx-datastore",
+    "androidx-datastore-core",
+]
+
+androidx-room = [
+    "androidx-room-runtime",
+    "androidx-room-ktx",
+]
