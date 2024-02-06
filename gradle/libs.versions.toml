@@ -35,18 +35,18 @@ androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 androidx-documentfile = "androidx.documentfile:documentfile:1.0.1"
 androidx-fragment = "androidx.fragment:fragment-ktx:1.6.2"
-androidx-lifecycle_runtime = "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+androidx-lifecycle_runtime = "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
 
-androidx-annotation = "androidx.annotation:annotation:1.7.0"
-androidx-preference = "androidx.preference:preference-ktx:1.2.0"
+androidx-annotation = "androidx.annotation:annotation:1.7.1"
+androidx-preference = "androidx.preference:preference-ktx:1.2.1"
 
-androidx-recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
+androidx-recyclerview = "androidx.recyclerview:recyclerview:1.3.2"
 
 androidx-constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
 androidx-percentlayout = "androidx.percentlayout:percentlayout:1.0.0"
 androidx-swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
-androidx-media = "androidx.media:media:1.6.0"
+androidx-media = "androidx.media:media:1.7.0"
 androidx-cardview = "androidx.cardview:cardview:1.0.0"
 androidx-palette = "androidx.palette:palette-ktx:1.0.0"
 
