@@ -68,12 +68,11 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.annotation)
-    implementation(libs.androidx.documentfile)
 
     implementation(libs.kotlinx.coroutines)
 
-    compileOnly(libs.androidx.core)
     compileOnly(libs.androidx.fragment)
+    compileOnly(libs.androidx.documentfile)
 
 //    implementation(libs.kotlinx.serialization)
 
