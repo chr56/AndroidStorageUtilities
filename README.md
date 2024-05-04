@@ -8,6 +8,6 @@ This library is designed for parsing document uri and simplify usage of SAF.
 
 ```groovy
 dependencies {
-    implementation("com.github.chr56:AndroidStorageUtilities:0.1.0")
+    implementation("com.github.chr56:AndroidStorageUtilities:0.1.2")
 }
 ```
