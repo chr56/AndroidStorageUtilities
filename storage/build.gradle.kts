@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
 
     compileOnly(libs.androidx.core)
+    compileOnly(libs.androidx.fragment)
 
 //    implementation(libs.kotlinx.serialization)
 
