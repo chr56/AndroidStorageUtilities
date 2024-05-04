@@ -5,6 +5,7 @@
 package lib.activityresultcontract
 
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
@@ -24,7 +25,7 @@ abstract class ActivityResultContractTool<I, O> {
 
 
     private var launcher: ActivityResultLauncher<I>? = null
-    private var callback: ((O) -> Unit)? = null
+    private var callback: ActivityResultCallback<O>? = null
 
     var busy: Boolean = false
         private set
@@ -35,9 +36,7 @@ abstract class ActivityResultContractTool<I, O> {
     fun register(fragment: Fragment) {
         fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
-                launcher = fragment.registerForActivityResult(contract()) {
-                    execute(it)
-                }
+                launcher = fragment.registerForActivityResult(contract(), ::execute)
             }
         })
     }
@@ -52,9 +51,7 @@ abstract class ActivityResultContractTool<I, O> {
     }
 
     fun register(caller: ActivityResultCaller) {
-        caller.registerForActivityResult(contract()) {
-            execute(it)
-        }
+        caller.registerForActivityResult(contract(), ::execute)
     }
 
 
@@ -67,13 +64,11 @@ abstract class ActivityResultContractTool<I, O> {
     }
 
     internal fun register(owner: LifecycleOwner, registry: ActivityResultRegistry) {
-        launcher = registry.register(key(), owner, contract()) {
-            execute(it)
-        }
+        launcher = registry.register(key(), owner, contract(), ::execute)
     }
 
     @Synchronized
-    fun launch(input: I, callback: (O) -> Unit) {
+    fun launch(input: I, callback: ActivityResultCallback<O>) {
         val launcher = this.launcher
         if (launcher != null) {
             busy = true
@@ -87,7 +82,7 @@ abstract class ActivityResultContractTool<I, O> {
     private fun execute(result: O) {
         val callback = this.callback
         if (callback != null) {
-            callback.invoke(result)
+            callback.onActivityResult(result)
         } else {
             throw IllegalStateException("callback of ActivityResult is null!")
         }
