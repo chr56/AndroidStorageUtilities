@@ -1,9 +1,10 @@
 /*
- *  Copyright (c) 2022~2024 chr_56
+ *  Copyright (c) 2023~2024 chr_56
  */
 
-package lib.activityresultcontract
+package lib.storage.launcher
 
+import lib.activityresultcontract.ActivityResultLauncherDelegate
 import androidx.activity.result.contract.ActivityResultContract
 import android.annotation.TargetApi
 import android.app.Activity
@@ -13,15 +14,15 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 
-class OpenDirStorageAccessTool : ActivityResultLauncherDelegate<Uri?, Uri?>() {
+class OpenDirStorageAccessDelegate : ActivityResultLauncherDelegate<Uri?, Uri?>() {
     override val key: String
         get() = "OpenDir"
     override val contract: ActivityResultContract<Uri?, Uri?>
         get() = GrandDirContract()
 }
 
-interface IOpenDirStorageAccess {
-    val openDirStorageAccessTool: OpenDirStorageAccessTool
+interface IOpenDirStorageAccessible {
+    val openDirStorageAccessDelegate: OpenDirStorageAccessDelegate
 }
 
 @TargetApi(21)

@@ -1,9 +1,10 @@
 /*
- *  Copyright (c) 2022~2024 chr_56
+ *  Copyright (c) 2023~2024 chr_56
  */
 
-package lib.activityresultcontract
+package lib.storage.launcher
 
+import lib.activityresultcontract.ActivityResultLauncherDelegate
 import androidx.activity.result.contract.ActivityResultContract
 import android.annotation.TargetApi
 import android.app.Activity
@@ -13,15 +14,15 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 
-class OpenFileStorageAccessTool : ActivityResultLauncherDelegate<OpenDocumentContract.Config, Uri?>() {
+class OpenFileStorageAccessDelegate : ActivityResultLauncherDelegate<OpenDocumentContract.Config, Uri?>() {
     override val key: String
         get() = "OpenFile"
     override val contract: ActivityResultContract<OpenDocumentContract.Config, Uri?>
         get() = OpenDocumentContract()
 }
 
-interface IOpenFileStorageAccess {
-    val openFileStorageAccessTool: OpenFileStorageAccessTool
+interface IOpenFileStorageAccessible {
+    val openFileStorageAccessDelegate: OpenFileStorageAccessDelegate
 }
 
 @TargetApi(19)

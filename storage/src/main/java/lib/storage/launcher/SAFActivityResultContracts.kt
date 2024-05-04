@@ -1,8 +1,8 @@
 /*
- *  Copyright (c) 2022~2024 chr_56
+ *  Copyright (c) 2023~2024 chr_56
  */
 
-package lib.activityresultcontract
+package lib.storage.launcher
 
 import lib.storage.guessDocumentUri
 import android.content.Context
@@ -13,14 +13,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 
 /**
- * Util for [ActivityResultLauncherDelegate]
+ * Util for [lib.activityresultcontract.ActivityResultLauncherDelegate]
  */
-object ActivityResultContractUtil {
+@Suppress("unused")
+object SAFActivityResultContracts {
 
     /**
      * choose a file from Storage Access Framework
      *
-     * __[context] must be [IOpenFileStorageAccess]__
+     * __[context] must be [IOpenFileStorageAccessible]__
      *
      * @param path initial location from guessing
      */
@@ -30,10 +31,10 @@ object ActivityResultContractUtil {
         path: String,
         mimeTypes: Array<String> = arrayOf("*/*"),
     ): Uri {
-        require(context is IOpenFileStorageAccess)
+        require(context is IOpenFileStorageAccessible)
         return suspendCancellableCoroutine {
             val initialUri = guessDocumentUri(context, File(path))
-            context.openFileStorageAccessTool.launch(OpenDocumentContract.Config(mimeTypes, initialUri)) { uri ->
+            context.openFileStorageAccessDelegate.launch(OpenDocumentContract.Config(mimeTypes, initialUri)) { uri ->
                 if (uri != null) {
                     it.resume(uri, this::canceled)
                 } else {
@@ -47,7 +48,7 @@ object ActivityResultContractUtil {
     /**
      * choose a directory from Storage Access Framework
      *
-     * __[context] must be [IOpenDirStorageAccess]__
+     * __[context] must be [IOpenDirStorageAccessible]__
      *
      * @param path initial location from guessing
      */
@@ -56,10 +57,10 @@ object ActivityResultContractUtil {
         context: Context,
         path: String,
     ): Uri {
-        require(context is IOpenDirStorageAccess)
+        require(context is IOpenDirStorageAccessible)
         return suspendCancellableCoroutine {
             val initialUri = guessDocumentUri(context, File(path))
-            context.openDirStorageAccessTool.launch(initialUri) { uri ->
+            context.openDirStorageAccessDelegate.launch(initialUri) { uri ->
                 if (uri != null) {
                     it.resume(uri, this::canceled)
                 } else {
@@ -72,7 +73,7 @@ object ActivityResultContractUtil {
     /**
      * create a file from Storage Access Framework
      *
-     * __[context] must be [ICreateFileStorageAccess]__
+     * __[context] must be [ICreateFileStorageAccessible]__
      *
      */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -80,9 +81,9 @@ object ActivityResultContractUtil {
         context: Context,
         fileName: String,
     ): Uri {
-        require(context is ICreateFileStorageAccess)
+        require(context is ICreateFileStorageAccessible)
         return suspendCancellableCoroutine {
-            context.createFileStorageAccessTool.launch(fileName) { uri ->
+            context.createFileStorageAccessDelegate.launch(fileName) { uri ->
                 if (uri != null) {
                     it.resume(uri, this::canceled)
                 } else {
@@ -97,5 +98,6 @@ object ActivityResultContractUtil {
         Log.v(TAG, "${e.message}\n${e.stackTraceToString()}")
     }
 
-    private const val TAG = "ActivityResultContract"
+    @Suppress("SpellCheckingInspection")
+    private const val TAG = "SAFARC"
 }
