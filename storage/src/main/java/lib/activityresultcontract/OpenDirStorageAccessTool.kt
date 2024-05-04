@@ -13,10 +13,11 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 
-class OpenDirStorageAccessTool : ActivityResultContractTool<Uri?, Uri?>() {
-    override fun key(): String = "OpenDir"
-    override fun contract(): ActivityResultContract<Uri?, Uri?> =
-        GrandDirContract()
+class OpenDirStorageAccessTool : ActivityResultLauncherDelegate<Uri?, Uri?>() {
+    override val key: String
+        get() = "OpenDir"
+    override val contract: ActivityResultContract<Uri?, Uri?>
+        get() = GrandDirContract()
 }
 
 interface IOpenDirStorageAccess {

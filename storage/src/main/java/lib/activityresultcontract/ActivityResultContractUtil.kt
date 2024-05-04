@@ -13,7 +13,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 
 /**
- * Util for [ActivityResultContractTool]
+ * Util for [ActivityResultLauncherDelegate]
  */
 object ActivityResultContractUtil {
 

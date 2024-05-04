@@ -8,10 +8,11 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
 
-class CreateFileStorageAccessTool(val mimeType: String = "*/*") : ActivityResultContractTool<String, Uri?>() {
-    override fun key(): String = "CreateFile"
-    override fun contract(): ActivityResultContract<String, Uri?> =
-        ActivityResultContracts.CreateDocument(mimeType)
+class CreateFileStorageAccessTool(val mimeType: String = "*/*") : ActivityResultLauncherDelegate<String, Uri?>() {
+    override val key: String
+        get() = "CreateFile"
+    override val contract: ActivityResultContract<String, Uri?>
+        get() = ActivityResultContracts.CreateDocument(mimeType)
 }
 
 interface ICreateFileStorageAccess {

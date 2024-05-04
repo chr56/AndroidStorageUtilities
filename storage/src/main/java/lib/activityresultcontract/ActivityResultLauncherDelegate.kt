@@ -16,16 +16,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 
 /**
- * register [ActivityResultContractTool] in onCreate using [register], then you can use everywhere
+ * Delegate of [ActivityResultLauncher], 
+ * which supports inplace callback.
+ * 
+ * **You need use [register] methods register this delegate first before use.**
+ * 
+ * Use [launch] to start with [ActivityResultCallback]
+ * 
  */
-abstract class ActivityResultContractTool<I, O> {
+abstract class ActivityResultLauncherDelegate<I, O> {
 
-    abstract fun key(): String
-    abstract fun contract(): ActivityResultContract<I, O>
+    abstract val key: String
+    abstract val contract: ActivityResultContract<I, O>
 
 
     private var launcher: ActivityResultLauncher<I>? = null
-    private var callback: ActivityResultCallback<O>? = null
+    private var _callback: ActivityResultCallback<O>? = null
 
     var busy: Boolean = false
         private set
@@ -36,7 +42,7 @@ abstract class ActivityResultContractTool<I, O> {
     fun register(fragment: Fragment) {
         fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
-                launcher = fragment.registerForActivityResult(contract(), ::execute)
+                launcher = fragment.registerForActivityResult(contract, ::execute)
             }
         })
     }
@@ -51,7 +57,7 @@ abstract class ActivityResultContractTool<I, O> {
     }
 
     fun register(caller: ActivityResultCaller) {
-        caller.registerForActivityResult(contract(), ::execute)
+        caller.registerForActivityResult(contract, ::execute)
     }
 
 
@@ -64,29 +70,30 @@ abstract class ActivityResultContractTool<I, O> {
     }
 
     internal fun register(owner: LifecycleOwner, registry: ActivityResultRegistry) {
-        launcher = registry.register(key(), owner, contract(), ::execute)
+        launcher = registry.register(key, owner, contract, ::execute)
     }
 
     @Synchronized
     fun launch(input: I, callback: ActivityResultCallback<O>) {
-        val launcher = this.launcher
+        val launcher = launcher
         if (launcher != null) {
             busy = true
-            this.callback = callback
+            _callback = callback
             launcher.launch(input)
         } else {
             throw IllegalStateException("ActivityResultLauncher is not correctly registered!")
         }
     }
 
+    @Synchronized
     private fun execute(result: O) {
-        val callback = this.callback
+        val callback = _callback
         if (callback != null) {
             callback.onActivityResult(result)
         } else {
             throw IllegalStateException("callback of ActivityResult is null!")
         }
-        this.callback = null
+        _callback = null
         busy = false
     }
 }

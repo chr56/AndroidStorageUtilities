@@ -13,10 +13,11 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 
-class OpenFileStorageAccessTool : ActivityResultContractTool<OpenDocumentContract.Config, Uri?>() {
-    override fun key(): String = "OpenFile"
-    override fun contract(): ActivityResultContract<OpenDocumentContract.Config, Uri?> =
-        OpenDocumentContract()
+class OpenFileStorageAccessTool : ActivityResultLauncherDelegate<OpenDocumentContract.Config, Uri?>() {
+    override val key: String
+        get() = "OpenFile"
+    override val contract: ActivityResultContract<OpenDocumentContract.Config, Uri?>
+        get() = OpenDocumentContract()
 }
 
 interface IOpenFileStorageAccess {
