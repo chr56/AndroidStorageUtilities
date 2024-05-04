@@ -26,13 +26,25 @@ import androidx.lifecycle.LifecycleOwner
  */
 abstract class ActivityResultLauncherDelegate<I, O> {
 
+    /**
+     * identifying key used in ActivityResultRegistry
+     */
     abstract val key: String
+
+    /**
+     * target [ActivityResultContract]
+     *
+     * used in creating internal launcher
+     */
     abstract val contract: ActivityResultContract<I, O>
 
 
     private var launcher: ActivityResultLauncher<I>? = null
     private var _callback: ActivityResultCallback<O>? = null
 
+    /**
+     * true if in using (not returning from contract activity)
+     */
     var busy: Boolean = false
         private set
 
@@ -73,6 +85,11 @@ abstract class ActivityResultLauncherDelegate<I, O> {
         launcher = registry.register(key, owner, contract, ::execute)
     }
 
+    /**
+     * launch for [contract] with [input] and [callback]
+     *
+     * **Must [register] in `OnCreate` before using**
+     */
     @Synchronized
     fun launch(input: I, callback: ActivityResultCallback<O>) {
         val launcher = launcher
@@ -85,6 +102,9 @@ abstract class ActivityResultLauncherDelegate<I, O> {
         }
     }
 
+    /**
+     * execute saved [ActivityResultCallback]
+     */
     @Synchronized
     private fun execute(result: O) {
         val callback = _callback
