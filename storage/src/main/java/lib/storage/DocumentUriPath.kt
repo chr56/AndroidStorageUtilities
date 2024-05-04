@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
+import java.io.File
 
 /**
  * @param uri system DocumentProviderUri (`content://com.android.externalstorage.documents/...`)
@@ -137,6 +138,29 @@ private fun childDocumentUriAbsolutePath(uri: Uri): String? {
         parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_TREE)
             ?: parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_DOCUMENT) ?: return null
     return buildAbsolutePath(storageVolumeId, documentBasePath ?: treeBasePath ?: "")
+}
+
+/**
+ * Get document uri id of file [filePath]
+ * @param filePath absolute POSIX paths of target file
+ * @return document uri id (<storage-id>:<base-path>)
+ */
+fun documentUriId(context: Context, filePath: String): String {
+    val file = File(filePath)
+    val storageId = file.getStorageId(context)
+    val basePath = file.getBasePath()
+    return "$storageId:$basePath"
+}
+
+/**
+ * Use [treeUri] to build document content uri of file [filePath]
+ * @param treeUri Document Tree Uri (`content://<EXTERNAL_STORAGE_AUTHORITY>/tree/...`)
+ * @param filePath absolute POSIX paths of target file
+ * @return document content uri (`content://<EXTERNAL_STORAGE_AUTHORITY>/tree/.../child/...`)
+ */
+fun childDocumentUriWithinTree(context: Context, treeUri: Uri, filePath: String): Uri {
+    val documentId = documentUriId(context, filePath)
+    return DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
 }
 
 
