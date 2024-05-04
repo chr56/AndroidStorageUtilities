@@ -11,7 +11,7 @@ import android.net.Uri
 
 class CreateFileStorageAccessDelegate(val mimeType: String = "*/*") : ActivityResultLauncherDelegate<String, Uri?>() {
     override val key: String
-        get() = "CreateFile"
+        get() = "SAF/CreateFile"
     override val contract: ActivityResultContract<String, Uri?>
         get() = ActivityResultContracts.CreateDocument(mimeType)
 }

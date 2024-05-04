@@ -16,7 +16,7 @@ import android.provider.DocumentsContract
 
 class OpenFileStorageAccessDelegate : ActivityResultLauncherDelegate<OpenDocumentContract.Config, Uri?>() {
     override val key: String
-        get() = "OpenFile"
+        get() = "SAF/OpenFile"
     override val contract: ActivityResultContract<OpenDocumentContract.Config, Uri?>
         get() = OpenDocumentContract()
 }

@@ -16,7 +16,7 @@ import android.provider.DocumentsContract
 
 class OpenDirStorageAccessDelegate : ActivityResultLauncherDelegate<Uri?, Uri?>() {
     override val key: String
-        get() = "OpenDir"
+        get() = "SAF/OpenDir"
     override val contract: ActivityResultContract<Uri?, Uri?>
         get() = GrandDirContract()
 }

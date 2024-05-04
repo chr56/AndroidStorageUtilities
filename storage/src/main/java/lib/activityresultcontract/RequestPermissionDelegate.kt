@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 
 class RequestPermissionDelegate : ActivityResultLauncherDelegate<String, Boolean>() {
-    override val key: String = "RequestPermissionTool"
+    override val key: String = "RequestPermission"
     override val contract: ActivityResultContract<String, Boolean> = ActivityResultContracts.RequestPermission()
 }
 

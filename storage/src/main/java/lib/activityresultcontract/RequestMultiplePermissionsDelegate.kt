@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 
 class RequestMultiplePermissionsDelegate : ActivityResultLauncherDelegate<Array<String>, Map<String, Boolean>>() {
-    override val key: String = "RequestMultiplePermissionsTool"
+    override val key: String = "RequestMultiplePermissions"
     override val contract: ActivityResultContract<Array<String>, Map<String, Boolean>> =
         ActivityResultContracts.RequestMultiplePermissions()
 }
