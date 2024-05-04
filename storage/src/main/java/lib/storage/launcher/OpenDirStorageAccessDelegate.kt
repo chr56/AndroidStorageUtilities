@@ -26,11 +26,10 @@ interface IOpenDirStorageAccessible {
 }
 
 @TargetApi(21)
-class GrandDirContract : ActivityResultContract<Uri?, Uri?>() {
+class GrandDirContract(val intentFlags: Int = DEFAULT_FLAGS) : ActivityResultContract<Uri?, Uri?>() {
     override fun createIntent(context: Context, input: Uri?): Intent {
         return Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-            flags =
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            flags = intentFlags
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && input != null) {
                 putExtra(DocumentsContract.EXTRA_INITIAL_URI, input)
             }
@@ -40,4 +39,14 @@ class GrandDirContract : ActivityResultContract<Uri?, Uri?>() {
     override fun getSynchronousResult(context: Context, input: Uri?): SynchronousResult<Uri?>? = null
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? =
         if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
+
+    companion object {
+        const val FLAGS_W = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        const val FLAGS_WR = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        const val FLAGS_WR_PERSIST = FLAGS_WR or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+
+
+        private const val DEFAULT_FLAGS = FLAGS_WR_PERSIST
+    }
 }
