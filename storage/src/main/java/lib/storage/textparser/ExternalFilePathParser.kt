@@ -4,7 +4,6 @@
 
 package lib.storage.textparser
 
-import lib.storage.STORAGE_VOLUME_PRIMARY
 import android.os.Environment
 
 object ExternalFilePathParser {

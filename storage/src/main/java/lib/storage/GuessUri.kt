@@ -4,14 +4,13 @@
 
 package lib.storage
 
+import lib.storage.textparser.DOCUMENT_PROVIDER_PATH_DOCUMENT
+import lib.storage.textparser.DOCUMENT_PROVIDER_PATH_TREE
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import java.io.File
-
-const val DOCUMENT_PROVIDER_PATH_TREE = "tree"
-const val DOCUMENT_PROVIDER_PATH_DOCUMENT = "document"
 
 /**
  * Build guessed DocumentProvider Document Uri:

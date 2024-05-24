@@ -4,10 +4,6 @@
 
 package lib.storage.textparser
 
-import lib.storage.DOCUMENT_PROVIDER_PATH_DOCUMENT
-import lib.storage.DOCUMENT_PROVIDER_PATH_TREE
-import lib.storage.STORAGE_VOLUME_PRIMARY
-
 object DocumentUriPathParser {
 
 

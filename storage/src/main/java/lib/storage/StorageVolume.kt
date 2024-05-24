@@ -7,6 +7,7 @@ package lib.storage
 import lib.storage.internal.storageManager
 import lib.storage.textparser.DocumentUriPathParser
 import lib.storage.textparser.ExternalFilePathParser
+import lib.storage.textparser.STORAGE_VOLUME_PRIMARY
 import androidx.annotation.RequiresApi
 import android.content.Context
 import android.net.Uri
@@ -15,11 +16,6 @@ import android.os.Build.VERSION_CODES
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import java.io.File
-
-/**
- * Primary Storage (internal storage)
- */
-const val STORAGE_VOLUME_PRIMARY = "primary"
 
 /**
  * Resolve file path (like `/storage/<StorageVolume>/<Path>`) and return `<StorageVolume>`
