@@ -24,7 +24,7 @@ import java.io.File
 fun File.getBasePath(): String =
     ExternalFilePathParser.bashPath(absolutePath) ?: throw IllegalArgumentException("Unsupported Path: $absolutePath")
 
-fun Uri.getBasePath(context: Context): String? = lib.storage.basePathOf(context, this)
+fun Uri.getBasePath(context: Context): String? = basePathOf(context, this)
 
 fun Uri.getAbsolutePath(context: Context): String? = absolutePathOf(context, this)
 
