@@ -4,11 +4,11 @@
 
 package lib.storage
 
+import lib.storage.internal.storageManager
 import androidx.annotation.RequiresApi
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
 import android.os.Environment
 import android.os.storage.StorageManager
@@ -18,89 +18,98 @@ import java.io.File
 /**
  * Primary Storage (internal storage)
  */
-const val PRIMARY = "primary"
+const val STORAGE_VOLUME_PRIMARY = "primary"
 
 /**
+ * Resolve file path (like `/storage/<StorageVolume>/<Path>`) and return `<StorageVolume>`
  * @return StorageVolume id
- * (`/storage/<StorageVolume>/<Path>>`)
  */
-@SuppressLint("ObsoleteSdkInt")
-fun File.getStorageId(context: Context): String {
-    return if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
+fun File.getStorageId(context: Context): String? =
+    if (SDK_INT >= VERSION_CODES.N) {
         val storageVolume = this.storageVolume(context)
         val storageId = storageVolume?.storageId()
-        return storageId ?: storageVolumeId(absolutePath)
-    } else { // below android 7
-        storageVolumeId(absolutePath)
+        storageId ?: parseStorageVolumeId(absolutePath)
+    } else {
+        parseStorageVolumeId(absolutePath)
     }
-}
+
+private fun parseStorageVolumeId(absolutePath: String): String? =
+    if (absolutePath.startsWith(Environment.getExternalStorageDirectory().absolutePath)) STORAGE_VOLUME_PRIMARY
+    else {
+        absolutePath
+            .substringAfter("/storage/", "")
+            .substringBefore('/')
+            .takeIf { it.isNotEmpty() }
+    }
+
 
 /**
- * @return StorageVolume id
- * (`/tree/<StorageVolume>:<Path>`)
+ * Resolve content uri (like `content:/<AUTHORITY>/tree/<StorageVolume>:<Path>`) and return `<StorageVolume>`
+ * @return StorageVolume id (null if Uri is incorrect!)
  */
-fun Uri.getStorageId(context: Context): String {
-    val path = path.orEmpty()
-    if (Build.VERSION.SDK_INT > VERSION_CODES.Q && this.isMediaDocument()) {
-        val storageVolume = this.storageVolume(context)
-        val storageId = storageVolume.storageId()
+fun Uri.getStorageId(context: Context): String? {
+    if (SDK_INT > VERSION_CODES.Q && this.isMediaDocument()) {
+        val storageVolume = this.mediaUriStorageVolume(context)
+        val storageId = storageVolume?.storageId()
         if (storageId != null) return storageId
     }
-
     return when {
-        isRawFile()             -> File(path).getStorageId(context)
-        isDocumentProviderUri() -> {
-            parseStorageVolumeId(uri = this) ?: throw IllegalArgumentException("Unknown Storage Volume (uri:$this) ")
-        }
-        isDownloadsDocument()   -> PRIMARY
-        else                    -> throw IllegalArgumentException("Unknown Storage Volume (uri:$this) ")
+        isDocumentProviderUri() -> parseStorageVolumeId(uri = this)
+        isRawFile()             -> File(path.orEmpty()).getStorageId(context)
+        isDownloadsDocument()   -> STORAGE_VOLUME_PRIMARY
+        else                    -> null
     }
 }
 
 @RequiresApi(VERSION_CODES.N)
 fun File.storageVolume(context: Context): StorageVolume? {
-    val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-    return storageManager.getStorageVolume(this)
+    val storageManager: StorageManager? = context.storageManager()
+    return storageManager?.getStorageVolume(this)
 }
 
 /**
- * @receiver Uri should be MediaStore Uri
+ * @receiver Uri must be Document Provider Content Uri
  */
 @RequiresApi(VERSION_CODES.Q)
-private fun Uri.storageVolume(context: Context): StorageVolume {
-    val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-    return storageManager.getStorageVolume(this)
+private fun Uri.contentUriStorageVolume(context: Context): StorageVolume? {
+    val storageManager: StorageManager? = context.storageManager()
+    if (storageManager != null) {
+        val id = parseStorageVolumeId(this)
+        return storageManager.storageVolumes.find { it.uuid == id }
+    } else {
+        return null
+    }
 }
 
-private fun storageVolumeId(absolutePath: String): String =
-    if (absolutePath.startsWith(Environment.getExternalStorageDirectory().absolutePath)) PRIMARY
-    else {
-        val id = absolutePath.substringAfter("/storage/", "").substringBefore('/')
-        id.ifEmpty {
-            throw IllegalArgumentException("Unknown Storage Volume (file:$absolutePath) ")
-        }
-    }
-
+/**
+ * @receiver Uri must be MediaStore Uri
+ */
+@RequiresApi(VERSION_CODES.Q)
+private fun Uri.mediaUriStorageVolume(context: Context): StorageVolume? {
+    val storageManager: StorageManager? = context.storageManager()
+    return storageManager?.getStorageVolume(this)
+}
 
 @RequiresApi(VERSION_CODES.N)
 fun StorageVolume.storageId(): String? = when {
-    this.isPrimary    -> PRIMARY
+    this.isPrimary    -> STORAGE_VOLUME_PRIMARY
     this.uuid != null -> uuid!!
     else              -> null
 }
 
 /**
- * @return null if unavailable (for example, unmounted or unsupported)
+ * @return root directory of StorageVolume, null if unavailable (for example, unmounted or unsupported)
  */
-fun StorageVolume.root(): File? =
-    if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
+fun StorageVolume.rootDirectory(): File? =
+    if (SDK_INT >= VERSION_CODES.R) {
         this.directory
     } else {
         try {
-            // this.javaClass.getField("mPath")
             this.javaClass.getMethod("getPathFile").invoke(this) as File
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
+
+private const val TAG = "StorageVolume"

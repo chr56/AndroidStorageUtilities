@@ -187,7 +187,7 @@ private fun parseStorageVolumeId(resolvedPath: Map<String, String>, key: String)
 }
 
 internal fun buildAbsolutePath(storageVolumeId: String, basePath: String): String {
-    return if (storageVolumeId == PRIMARY) {
+    return if (storageVolumeId == STORAGE_VOLUME_PRIMARY) {
         "$externalStoragePath/$basePath"
     } else {
         "/storage/$storageVolumeId/$basePath"

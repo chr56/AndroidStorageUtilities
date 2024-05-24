@@ -68,7 +68,7 @@ private fun basicDocumentProviderUri(
 ): Uri {
     val storageId = file.getStorageId(context)
     val basePath = file.getBasePath()
-    require(storageId.isNotEmpty() && basePath.isNotEmpty()) { "Invalid path: ${file.absoluteFile}" }
+    require(!storageId.isNullOrEmpty() && basePath.isNotEmpty()) { "Invalid path: ${file.absoluteFile}" }
 
     val location = "$storageId:$basePath"
 
