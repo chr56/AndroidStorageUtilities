@@ -4,6 +4,8 @@
 
 package lib.storage
 
+import lib.storage.textparser.ExternalFilePathParser
+import lib.storage.textparser.ExternalFilePathParser.primaryExternalStoragePath
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -18,7 +20,7 @@ fun Uri.getBasePath(context: Context): String? {
         isRawFile()             -> {
             val path = path ?: return null
             try {
-                externalFileBashPath(path)
+                ExternalFilePathParser.bashPath(path)
             } catch (e: IllegalArgumentException) {
                 Log.e("Storage", "unsupported path: $path", e)
                 null
@@ -72,6 +74,6 @@ private fun parseDownloadUriBasePath(context: Context, uri: Uri): String? {
             null
         }
         else                                           ->
-            path.substringAfterLast(externalStoragePath, "").trim('/')
+            path.substringAfterLast(primaryExternalStoragePath, "").trim('/')
     }
 }

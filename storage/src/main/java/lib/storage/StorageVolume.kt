@@ -5,12 +5,12 @@
 package lib.storage
 
 import lib.storage.internal.storageManager
+import lib.storage.textparser.ExternalFilePathParser
 import androidx.annotation.RequiresApi
 import android.content.Context
 import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
-import android.os.Environment
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import java.io.File
@@ -28,20 +28,10 @@ fun File.getStorageId(context: Context): String? =
     if (SDK_INT >= VERSION_CODES.N) {
         val storageVolume = this.storageVolume(context)
         val storageId = storageVolume?.storageId()
-        storageId ?: parseStorageVolumeId(absolutePath)
+        storageId ?: ExternalFilePathParser.storageVolumeId(absolutePath)
     } else {
-        parseStorageVolumeId(absolutePath)
+        ExternalFilePathParser.storageVolumeId(absolutePath)
     }
-
-private fun parseStorageVolumeId(absolutePath: String): String? =
-    if (absolutePath.startsWith(Environment.getExternalStorageDirectory().absolutePath)) STORAGE_VOLUME_PRIMARY
-    else {
-        absolutePath
-            .substringAfter("/storage/", "")
-            .substringBefore('/')
-            .takeIf { it.isNotEmpty() }
-    }
-
 
 /**
  * Resolve content uri (like `content:/<AUTHORITY>/tree/<StorageVolume>:<Path>`) and return `<StorageVolume>`

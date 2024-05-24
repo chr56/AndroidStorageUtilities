@@ -4,6 +4,7 @@
 
 package lib.storage
 
+import lib.storage.textparser.ExternalFilePathParser.primaryExternalStoragePath
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -188,7 +189,7 @@ private fun parseStorageVolumeId(resolvedPath: Map<String, String>, key: String)
 
 internal fun buildAbsolutePath(storageVolumeId: String, basePath: String): String {
     return if (storageVolumeId == STORAGE_VOLUME_PRIMARY) {
-        "$externalStoragePath/$basePath"
+        "$primaryExternalStoragePath/$basePath"
     } else {
         "/storage/$storageVolumeId/$basePath"
     }

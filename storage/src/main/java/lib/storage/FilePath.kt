@@ -4,7 +4,7 @@
 
 package lib.storage
 
-import android.os.Environment
+import lib.storage.textparser.ExternalFilePathParser
 import java.io.File
 
 /**
@@ -12,25 +12,9 @@ import java.io.File
  */
 fun File.getBasePath(): String = externalFileBashPath(absolutePath)
 
-/**
- * relative file path from _the root of a storage volume_
- */
-fun externalFileBashPath(absolutePath: String): String {
-    val primaryStoragePath = externalStoragePath
-    return if (absolutePath.startsWith(primaryStoragePath)) {
-        absolutePath.substringAfter(primaryStoragePath, "").trim('/')
-    } else {
-        if (!absolutePath.startsWith("/storage")) {
-            if (absolutePath.startsWith("/mnt")) {
-                absolutePath.substringAfter("/mnt/", "").substringAfter('/')
-            } else {
-                throw IllegalArgumentException("Unsupported Path: $absolutePath")
-            }
-        } else {
-            absolutePath.substringAfter("/storage/", "").substringAfter('/')
-        }
-    }
-}
-
-
-val externalStoragePath: String get() = Environment.getExternalStorageDirectory().absolutePath
+@Deprecated(
+    "Moved to ExternalFilePathParser",
+    ReplaceWith("ExternalFilePathParser.bashPath(absolutePath)", "lib.storage.textparser.ExternalFilePathParser")
+)
+fun externalFileBashPath(absolutePath: String): String = ExternalFilePathParser.bashPath(absolutePath)
+    ?: throw IllegalArgumentException("Unsupported Path: $absolutePath")
