@@ -10,9 +10,9 @@ import lib.storage.textparser.DocumentUriPathParser.documentTreeUriAbsolutePath
 import lib.storage.textparser.DocumentUriPathParser.documentTreeUriBasePath
 import lib.storage.textparser.DocumentUriPathParser.documentUriAbsolutePath
 import lib.storage.textparser.DocumentUriPathParser.documentUriBasePath
+import androidx.core.provider.DocumentsContractCompat
 import android.content.Context
 import android.net.Uri
-import android.provider.DocumentsContract
 import android.util.Log
 import java.io.File
 
@@ -25,8 +25,8 @@ fun documentProviderUriBasePath(uri: Uri, context: Context): String? {
         Log.w("Storage", "Non-Android DocumentProvider: $uri")
     }
     return when {
-        DocumentsContract.isTreeUri(uri)              -> documentTreeUriBasePath(uri.pathSegments)
-        DocumentsContract.isDocumentUri(context, uri) -> documentUriBasePath(uri.pathSegments)
+        DocumentsContractCompat.isTreeUri(uri)              -> documentTreeUriBasePath(uri.pathSegments)
+        DocumentsContractCompat.isDocumentUri(context, uri) -> documentUriBasePath(uri.pathSegments)
         else                                          -> childDocumentUriBasePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
@@ -49,8 +49,8 @@ fun documentProviderUriAbsolutePath(uri: Uri, context: Context): String? {
         Log.w("Storage", "Non-Android DocumentProvider: $uri")
     }
     return when {
-        DocumentsContract.isDocumentUri(context, uri) -> documentUriAbsolutePath(uri.pathSegments)
-        DocumentsContract.isTreeUri(uri)              -> documentTreeUriAbsolutePath(uri.pathSegments)
+        DocumentsContractCompat.isDocumentUri(context, uri) -> documentUriAbsolutePath(uri.pathSegments)
+        DocumentsContractCompat.isTreeUri(uri)              -> documentTreeUriAbsolutePath(uri.pathSegments)
         else                                          -> childDocumentUriAbsolutePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
@@ -81,7 +81,7 @@ fun documentUriId(context: Context, filePath: String): String {
  * @param filePath absolute POSIX paths of target file
  * @return document content uri (`content://<EXTERNAL_STORAGE_AUTHORITY>/tree/.../child/...`)
  */
-fun childDocumentUriWithinTree(context: Context, treeUri: Uri, filePath: String): Uri {
+fun childDocumentUriWithinTree(context: Context, treeUri: Uri, filePath: String): Uri? {
     val documentId = documentUriId(context, filePath)
-    return DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+    return DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, documentId)
 }
