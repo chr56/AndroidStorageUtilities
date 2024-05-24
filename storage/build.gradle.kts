@@ -11,7 +11,7 @@ plugins {
     // alias(libs.plugins.kotlin.ksp)
 }
 
-val libVersion = "0.2.0"
+val libVersion = "0.3.0"
 
 android {
     compileSdk = 34
