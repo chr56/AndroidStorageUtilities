@@ -4,7 +4,12 @@
 
 package lib.storage
 
-import lib.storage.textparser.ExternalFilePathParser.primaryExternalStoragePath
+import lib.storage.textparser.DocumentUriPathParser.childDocumentUriAbsolutePath
+import lib.storage.textparser.DocumentUriPathParser.childDocumentUriBasePath
+import lib.storage.textparser.DocumentUriPathParser.documentTreeUriAbsolutePath
+import lib.storage.textparser.DocumentUriPathParser.documentTreeUriBasePath
+import lib.storage.textparser.DocumentUriPathParser.documentUriAbsolutePath
+import lib.storage.textparser.DocumentUriPathParser.documentUriBasePath
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -20,9 +25,9 @@ fun documentProviderUriBasePath(uri: Uri, context: Context): String? {
         Log.w("Storage", "Non-Android DocumentProvider: $uri")
     }
     return when {
-        DocumentsContract.isTreeUri(uri)              -> documentTreeUriBasePath(uri)
-        DocumentsContract.isDocumentUri(context, uri) -> documentUriBasePath(uri)
-        else                                          -> childDocumentUriBasePath(uri) // may be a ChildDocumentUri
+        DocumentsContract.isTreeUri(uri)              -> documentTreeUriBasePath(uri.pathSegments)
+        DocumentsContract.isDocumentUri(context, uri) -> documentUriBasePath(uri.pathSegments)
+        else                                          -> childDocumentUriBasePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
 
@@ -31,45 +36,7 @@ fun documentProviderUriBasePath(uri: Uri, context: Context): String? {
  * @return base path (relative file path from _the root of a storage volume_)
  */
 fun documentProviderUriBasePathForce(uri: Uri): String? {
-    return if (uri.authority == EXTERNAL_STORAGE_AUTHORITY) childDocumentUriBasePath(uri) else null
-}
-
-/**
- * @param uri system Document Uri (`content://com.android.externalstorage.documents/document/<StorageVolume>:<BasePath>#...`)
- * @return base path (relative file path from _the root of a storage volume_)
- * @see documentTreeUriBasePath
- * @see documentUriBasePath
- * @see childDocumentUriBasePath
- */
-internal fun documentUriBasePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    return parseBasePath(map, DOCUMENT_PROVIDER_PATH_DOCUMENT)
-}
-
-/**
- * @param uri system Tree Document Uri (`content://com.android.externalstorage.documents/tree/<StorageVolume>:<BasePath>#...`)
- * @return base path (relative file path from _the root of a storage volume_)
- * @see documentTreeUriBasePath
- * @see documentUriBasePath
- * @see childDocumentUriBasePath
- */
-internal fun documentTreeUriBasePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    return parseBasePath(map, DOCUMENT_PROVIDER_PATH_TREE)
-}
-
-/**
- * @param uri system Child Document Uri (`content://com.android.externalstorage.documents/tree/<StorageVolume>:<BasePath>/document/<StorageVolume>:<BasePath>#...`)
- * @return base path (relative file path from _the root of a storage volume_)
- * @see documentTreeUriBasePath
- * @see documentUriBasePath
- * @see childDocumentUriBasePath
- */
-private fun childDocumentUriBasePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    val document = parseBasePath(map, DOCUMENT_PROVIDER_PATH_DOCUMENT)
-    val tree = parseBasePath(map, DOCUMENT_PROVIDER_PATH_TREE)
-    return document ?: tree
+    return if (uri.authority == EXTERNAL_STORAGE_AUTHORITY) childDocumentUriBasePath(uri.pathSegments) else null
 }
 
 
@@ -82,9 +49,9 @@ fun documentProviderUriAbsolutePath(uri: Uri, context: Context): String? {
         Log.w("Storage", "Non-Android DocumentProvider: $uri")
     }
     return when {
-        DocumentsContract.isDocumentUri(context, uri) -> documentUriAbsolutePath(uri)
-        DocumentsContract.isTreeUri(uri)              -> documentTreeUriAbsolutePath(uri)
-        else                                          -> childDocumentUriAbsolutePath(uri) // may be a ChildDocumentUri
+        DocumentsContract.isDocumentUri(context, uri) -> documentUriAbsolutePath(uri.pathSegments)
+        DocumentsContract.isTreeUri(uri)              -> documentTreeUriAbsolutePath(uri.pathSegments)
+        else                                          -> childDocumentUriAbsolutePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
 
@@ -93,52 +60,7 @@ fun documentProviderUriAbsolutePath(uri: Uri, context: Context): String? {
  * @return absolute (relative file path from _the root of a storage volume_)
  */
 fun documentProviderUriAbsolutePathForce(uri: Uri): String? {
-    return if (uri.authority == EXTERNAL_STORAGE_AUTHORITY) childDocumentUriAbsolutePath(uri) else null
-}
-
-/**
- * @param uri system Child Document Uri (`content://com.android.externalstorage.documents/document/<StorageVolume>:<BasePath>#...`)
- * @return absolute path
- * @see documentTreeUriAbsolutePath
- * @see documentUriAbsolutePath
- * @see childDocumentUriAbsolutePath
- */
-internal fun documentUriAbsolutePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    val basePath = parseBasePath(map, DOCUMENT_PROVIDER_PATH_DOCUMENT) ?: return null
-    val storageVolumeId = parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_DOCUMENT) ?: return null
-    return buildAbsolutePath(storageVolumeId, basePath)
-}
-
-/**
- * @param uri system Child Document Uri (`content://com.android.externalstorage.documents/tree/<StorageVolume>:<BasePath>#...`)
- * @return absolute path
- * @see documentTreeUriAbsolutePath
- * @see documentUriAbsolutePath
- * @see childDocumentUriAbsolutePath
- */
-internal fun documentTreeUriAbsolutePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    val basePath = parseBasePath(map, DOCUMENT_PROVIDER_PATH_TREE) ?: return null
-    val storageVolumeId = parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_TREE) ?: return null
-    return buildAbsolutePath(storageVolumeId, basePath)
-}
-
-/**
- * @param uri system Child Document Uri (`content://com.android.externalstorage.documents/tree/<StorageVolume>:<BasePath>/document/<StorageVolume>:<BasePath>#...`)
- * @return absolute path
- * @see documentTreeUriAbsolutePath
- * @see documentUriAbsolutePath
- * @see childDocumentUriAbsolutePath
- */
-private fun childDocumentUriAbsolutePath(uri: Uri): String? {
-    val map = parseUriPathPart(uri)
-    val treeBasePath = parseBasePath(map, DOCUMENT_PROVIDER_PATH_TREE)
-    val documentBasePath = parseBasePath(map, DOCUMENT_PROVIDER_PATH_TREE)
-    val storageVolumeId =
-        parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_TREE)
-            ?: parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_DOCUMENT) ?: return null
-    return buildAbsolutePath(storageVolumeId, documentBasePath ?: treeBasePath ?: "")
+    return if (uri.authority == EXTERNAL_STORAGE_AUTHORITY) childDocumentUriAbsolutePath(uri.pathSegments) else null
 }
 
 /**
@@ -162,42 +84,4 @@ fun documentUriId(context: Context, filePath: String): String {
 fun childDocumentUriWithinTree(context: Context, treeUri: Uri, filePath: String): Uri {
     val documentId = documentUriId(context, filePath)
     return DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
-}
-
-
-private fun parseUriPathPart(uri: Uri): Map<String, String> {
-    val pathSegments = uri.pathSegments
-    if (pathSegments.size % 2 == 0) {
-        val groups = pathSegments.chunked(2)
-        return groups.associate { it[0] to it[1] }
-    } else {
-        throw IllegalArgumentException("Unsupported uri: $uri")
-    }
-}
-
-private fun parseBasePath(resolvedPath: Map<String, String>, key: String): String? {
-    return resolvedPath.getOrDefault(key, "")
-        .substringAfter(':', "")
-        .takeIf { it.isNotEmpty() }
-}
-
-private fun parseStorageVolumeId(resolvedPath: Map<String, String>, key: String): String? {
-    return resolvedPath.getOrDefault(key, "")
-        .substringBefore(':', "")
-        .takeIf { it.isNotEmpty() }
-}
-
-internal fun buildAbsolutePath(storageVolumeId: String, basePath: String): String {
-    return if (storageVolumeId == STORAGE_VOLUME_PRIMARY) {
-        "$primaryExternalStoragePath/$basePath"
-    } else {
-        "/storage/$storageVolumeId/$basePath"
-    }
-}
-
-internal fun parseStorageVolumeId(uri: Uri): String? {
-    if (!uri.isDocumentProviderUri()) return null
-    val map = parseUriPathPart(uri)
-    return parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_DOCUMENT)
-        ?: parseStorageVolumeId(map, DOCUMENT_PROVIDER_PATH_TREE)
 }

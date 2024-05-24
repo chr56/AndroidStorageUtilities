@@ -5,6 +5,7 @@
 package lib.storage
 
 import lib.storage.internal.storageManager
+import lib.storage.textparser.DocumentUriPathParser
 import lib.storage.textparser.ExternalFilePathParser
 import androidx.annotation.RequiresApi
 import android.content.Context
@@ -44,7 +45,7 @@ fun Uri.getStorageId(context: Context): String? {
         if (storageId != null) return storageId
     }
     return when {
-        isDocumentProviderUri() -> parseStorageVolumeId(uri = this)
+        isDocumentProviderUri() -> DocumentUriPathParser.storageVolumeId(pathSegments)
         isRawFile()             -> File(path.orEmpty()).getStorageId(context)
         isDownloadsDocument()   -> STORAGE_VOLUME_PRIMARY
         else                    -> null
@@ -64,7 +65,7 @@ fun File.storageVolume(context: Context): StorageVolume? {
 private fun Uri.contentUriStorageVolume(context: Context): StorageVolume? {
     val storageManager: StorageManager? = context.storageManager()
     if (storageManager != null) {
-        val id = parseStorageVolumeId(this)
+        val id = DocumentUriPathParser.storageVolumeId(pathSegments)
         return storageManager.storageVolumes.find { it.uuid == id }
     } else {
         return null
