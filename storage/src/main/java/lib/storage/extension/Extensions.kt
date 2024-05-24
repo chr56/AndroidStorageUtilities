@@ -21,8 +21,7 @@ import android.os.storage.StorageVolume
 import java.io.File
 
 
-fun File.getBasePath(): String =
-    ExternalFilePathParser.bashPath(absolutePath) ?: throw IllegalArgumentException("Unsupported Path: $absolutePath")
+fun File.getBasePath(): String? = ExternalFilePathParser.bashPath(absolutePath)
 
 fun Uri.getBasePath(context: Context): String? = basePathOf(context, this)
 

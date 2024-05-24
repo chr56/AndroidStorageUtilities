@@ -12,6 +12,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.util.Log
 import java.io.File
 
 /**
@@ -25,7 +26,7 @@ fun guessDocumentUri(
     context: Context,
     file: File,
     id: String? = null,
-): Uri = basicDocumentProviderUri(
+): Uri? = basicDocumentProviderUri(
     context,
     file,
     EXTERNAL_STORAGE_AUTHORITY,
@@ -44,7 +45,7 @@ fun guessTreeUri(
     context: Context,
     file: File,
     id: String? = null,
-): Uri = basicDocumentProviderUri(
+): Uri? = basicDocumentProviderUri(
     context,
     file,
     EXTERNAL_STORAGE_AUTHORITY,
@@ -60,22 +61,25 @@ fun guessTreeUri(
  * @param authority package name of document provider (like `com.android.externalstorage.documents`)
  * @param type See [DocumentsContract] Constant (like `document`, `tree`)
  */
+@Suppress("SameParameterValue")
 private fun basicDocumentProviderUri(
     context: Context,
     file: File,
     authority: String,
     type: String,
     id: String?,
-): Uri {
+): Uri? {
     val storageId = storageVolumeIdOf(context, file)
     val basePath = ExternalFilePathParser.bashPath(file.absolutePath)
-        ?: throw IllegalArgumentException("Unsupported Path: ${file.absolutePath}")
-    require(!storageId.isNullOrEmpty() && basePath.isNotEmpty()) { "Invalid path: ${file.absoluteFile}" }
-
-    val location = "$storageId:$basePath"
-
-    return Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority)
-        .appendPath(type).appendPath(location)
-        .let { if (id != null) it.appendPath(id) else it }
-        .build()
+    return if (!storageId.isNullOrEmpty() && !basePath.isNullOrEmpty()) {
+        Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority)
+            .appendPath(type).appendPath("$storageId:$basePath")
+            .let { if (id != null) it.appendPath(id) else it }
+            .build()
+    } else {
+        Log.w(TAG, "Incorrect file ${file.absolutePath}")
+        null
+    }
 }
+
+private const val TAG = "UriSpeculation"
