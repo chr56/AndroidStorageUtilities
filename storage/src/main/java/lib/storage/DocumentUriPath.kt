@@ -4,12 +4,14 @@
 
 package lib.storage
 
+import lib.storage.extension.EXTERNAL_STORAGE_AUTHORITY
 import lib.storage.textparser.DocumentUriPathParser.childDocumentUriAbsolutePath
 import lib.storage.textparser.DocumentUriPathParser.childDocumentUriBasePath
 import lib.storage.textparser.DocumentUriPathParser.documentTreeUriAbsolutePath
 import lib.storage.textparser.DocumentUriPathParser.documentTreeUriBasePath
 import lib.storage.textparser.DocumentUriPathParser.documentUriAbsolutePath
 import lib.storage.textparser.DocumentUriPathParser.documentUriBasePath
+import lib.storage.textparser.ExternalFilePathParser
 import androidx.core.provider.DocumentsContractCompat
 import android.content.Context
 import android.net.Uri
@@ -27,7 +29,7 @@ fun documentProviderUriBasePath(uri: Uri, context: Context): String? {
     return when {
         DocumentsContractCompat.isTreeUri(uri)              -> documentTreeUriBasePath(uri.pathSegments)
         DocumentsContractCompat.isDocumentUri(context, uri) -> documentUriBasePath(uri.pathSegments)
-        else                                          -> childDocumentUriBasePath(uri.pathSegments) // may be a ChildDocumentUri
+        else                                                -> childDocumentUriBasePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
 
@@ -51,7 +53,7 @@ fun documentProviderUriAbsolutePath(uri: Uri, context: Context): String? {
     return when {
         DocumentsContractCompat.isDocumentUri(context, uri) -> documentUriAbsolutePath(uri.pathSegments)
         DocumentsContractCompat.isTreeUri(uri)              -> documentTreeUriAbsolutePath(uri.pathSegments)
-        else                                          -> childDocumentUriAbsolutePath(uri.pathSegments) // may be a ChildDocumentUri
+        else                                                -> childDocumentUriAbsolutePath(uri.pathSegments) // may be a ChildDocumentUri
     }
 }
 
@@ -70,8 +72,9 @@ fun documentProviderUriAbsolutePathForce(uri: Uri): String? {
  */
 fun documentUriId(context: Context, filePath: String): String {
     val file = File(filePath)
-    val storageId = file.getStorageId(context)
-    val basePath = file.getBasePath()
+    val storageId = storageVolumeIdOf(context, file)
+    val basePath = ExternalFilePathParser.bashPath(file.absolutePath)
+        ?: throw IllegalArgumentException("Unsupported Path: $filePath")
     return "$storageId:$basePath"
 }
 

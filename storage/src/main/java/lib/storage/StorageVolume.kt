@@ -4,6 +4,10 @@
 
 package lib.storage
 
+import lib.storage.extension.isDocumentProviderUri
+import lib.storage.extension.isDownloadsDocument
+import lib.storage.extension.isMediaDocument
+import lib.storage.extension.isRawFile
 import lib.storage.internal.storageManager
 import lib.storage.textparser.DocumentUriPathParser
 import lib.storage.textparser.ExternalFilePathParser
@@ -21,47 +25,48 @@ import java.io.File
  * Resolve file path (like `/storage/<StorageVolume>/<Path>`) and return `<StorageVolume>`
  * @return StorageVolume id
  */
-fun File.getStorageId(context: Context): String? =
+fun storageVolumeIdOf(context: Context, file: File): String? =
     if (SDK_INT >= VERSION_CODES.N) {
-        val storageVolume = this.storageVolume(context)
-        val storageId = storageVolume?.storageId()
-        storageId ?: ExternalFilePathParser.storageVolumeId(absolutePath)
+        val storageVolume = storageVolumeOf(context, file)
+        val storageId = storageVolume?.let { storageVolumeIdOf(it) }
+        storageId ?: ExternalFilePathParser.storageVolumeId(file.absolutePath)
     } else {
-        ExternalFilePathParser.storageVolumeId(absolutePath)
+        ExternalFilePathParser.storageVolumeId(file.absolutePath)
     }
 
 /**
  * Resolve content uri (like `content:/<AUTHORITY>/tree/<StorageVolume>:<Path>`) and return `<StorageVolume>`
  * @return StorageVolume id (null if Uri is incorrect!)
  */
-fun Uri.getStorageId(context: Context): String? {
-    if (SDK_INT > VERSION_CODES.Q && this.isMediaDocument()) {
-        val storageVolume = this.mediaUriStorageVolume(context)
-        val storageId = storageVolume?.storageId()
+fun storageVolumeIdOf(context: Context, uri: Uri): String? {
+    if (SDK_INT > VERSION_CODES.Q && uri.isMediaDocument()) {
+        val storageVolume = mediaUriStorageVolumeOf(context, uri)
+        val storageId = storageVolume?.let { storageVolumeIdOf(it) }
         if (storageId != null) return storageId
     }
     return when {
-        isDocumentProviderUri() -> DocumentUriPathParser.storageVolumeId(pathSegments)
-        isRawFile()             -> File(path.orEmpty()).getStorageId(context)
-        isDownloadsDocument()   -> STORAGE_VOLUME_PRIMARY
-        else                    -> null
+        uri.isDocumentProviderUri() -> DocumentUriPathParser.storageVolumeId(uri.pathSegments)
+        uri.isRawFile()             -> storageVolumeIdOf(context, File(uri.path.orEmpty()))
+        uri.isDownloadsDocument()   -> STORAGE_VOLUME_PRIMARY
+        else                        -> null
     }
 }
 
+
 @RequiresApi(VERSION_CODES.N)
-fun File.storageVolume(context: Context): StorageVolume? {
+fun storageVolumeOf(context: Context, file: File): StorageVolume? {
     val storageManager: StorageManager? = context.storageManager()
-    return storageManager?.getStorageVolume(this)
+    return storageManager?.getStorageVolume(file)
 }
 
 /**
  * @receiver Uri must be Document Provider Content Uri
  */
 @RequiresApi(VERSION_CODES.Q)
-private fun Uri.contentUriStorageVolume(context: Context): StorageVolume? {
+fun contentUriStorageVolumeOf(context: Context, contentUri: Uri): StorageVolume? {
     val storageManager: StorageManager? = context.storageManager()
     if (storageManager != null) {
-        val id = DocumentUriPathParser.storageVolumeId(pathSegments)
+        val id = DocumentUriPathParser.storageVolumeId(contentUri.pathSegments)
         return storageManager.storageVolumes.find { it.uuid == id }
     } else {
         return null
@@ -72,27 +77,27 @@ private fun Uri.contentUriStorageVolume(context: Context): StorageVolume? {
  * @receiver Uri must be MediaStore Uri
  */
 @RequiresApi(VERSION_CODES.Q)
-private fun Uri.mediaUriStorageVolume(context: Context): StorageVolume? {
+fun mediaUriStorageVolumeOf(context: Context, mediastoreUri: Uri): StorageVolume? {
     val storageManager: StorageManager? = context.storageManager()
-    return storageManager?.getStorageVolume(this)
+    return storageManager?.getStorageVolume(mediastoreUri)
 }
 
 @RequiresApi(VERSION_CODES.N)
-fun StorageVolume.storageId(): String? = when {
-    this.isPrimary    -> STORAGE_VOLUME_PRIMARY
-    this.uuid != null -> uuid!!
-    else              -> null
+fun storageVolumeIdOf(storageVolume: StorageVolume): String? = when {
+    storageVolume.isPrimary    -> STORAGE_VOLUME_PRIMARY
+    storageVolume.uuid != null -> storageVolume.uuid!!
+    else                       -> null
 }
 
 /**
  * @return root directory of StorageVolume, null if unavailable (for example, unmounted or unsupported)
  */
-fun StorageVolume.rootDirectory(): File? =
+fun rootDirectoryOf(storageVolume: StorageVolume): File? =
     if (SDK_INT >= VERSION_CODES.R) {
-        this.directory
+        storageVolume.directory
     } else {
         try {
-            this.javaClass.getMethod("getPathFile").invoke(this) as File
+            storageVolume.javaClass.getMethod("getPathFile").invoke(storageVolume) as File
         } catch (e: Exception) {
             e.printStackTrace()
             null

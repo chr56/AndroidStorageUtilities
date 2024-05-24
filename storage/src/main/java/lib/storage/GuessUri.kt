@@ -4,8 +4,10 @@
 
 package lib.storage
 
+import lib.storage.extension.EXTERNAL_STORAGE_AUTHORITY
 import lib.storage.textparser.DOCUMENT_PROVIDER_PATH_DOCUMENT
 import lib.storage.textparser.DOCUMENT_PROVIDER_PATH_TREE
+import lib.storage.textparser.ExternalFilePathParser
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
@@ -65,8 +67,9 @@ private fun basicDocumentProviderUri(
     type: String,
     id: String?,
 ): Uri {
-    val storageId = file.getStorageId(context)
-    val basePath = file.getBasePath()
+    val storageId = storageVolumeIdOf(context, file)
+    val basePath = ExternalFilePathParser.bashPath(file.absolutePath)
+        ?: throw IllegalArgumentException("Unsupported Path: ${file.absolutePath}")
     require(!storageId.isNullOrEmpty() && basePath.isNotEmpty()) { "Invalid path: ${file.absoluteFile}" }
 
     val location = "$storageId:$basePath"

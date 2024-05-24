@@ -2,7 +2,7 @@
  *  Copyright (c) 2022~2024 chr_56
  */
 
-package lib.storage
+package lib.storage.extension
 
 import androidx.annotation.RequiresApi
 import android.content.ContentResolver
@@ -25,12 +25,10 @@ fun Uri.isDocumentProviderUri(): Boolean =
 fun Uri.isDocumentProviderUriSafe(context: Context): Boolean =
     DocumentsContract.isDocumentUri(context, this)
 
-fun Uri.isTreeDocumentFile(): Boolean =
-    isDocumentProviderUri() && path?.startsWith("/tree/") == true
+fun Uri.isTreeDocumentFile(): Boolean = isDocumentProviderUri() && path?.startsWith("/tree/") == true
 
 @RequiresApi(Build.VERSION_CODES.N)
-fun Uri.isTreeDocumentFileSafe(): Boolean =
-    DocumentsContract.isTreeUri(this)
+fun Uri.isTreeDocumentFileSafe(): Boolean = DocumentsContract.isTreeUri(this)
 
 fun Uri.isDownloadsDocument(): Boolean = authority == DOWNLOADS_FOLDER_AUTHORITY
 

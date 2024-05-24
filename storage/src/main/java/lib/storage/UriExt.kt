@@ -4,21 +4,25 @@
 
 package lib.storage
 
+import lib.storage.extension.isDocumentProviderUri
+import lib.storage.extension.isDownloadsDocument
+import lib.storage.extension.isRawFile
 import lib.storage.textparser.ExternalFilePathParser
 import lib.storage.textparser.ExternalFilePathParser.primaryExternalStoragePath
 import android.content.Context
 import android.net.Uri
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 
 
-fun Uri.getBasePath(context: Context): String? {
+fun basePathOf(context: Context, uri: Uri): String? {
     return when {
-        isDocumentProviderUri() -> documentProviderUriBasePath(uri = this, context)
-        isRawFile()             -> {
-            val path = path ?: return null
+        uri.isDocumentProviderUri() -> documentProviderUriBasePath(uri = uri, context)
+        uri.isRawFile()             -> {
+            val path = uri.path ?: return null
             try {
                 ExternalFilePathParser.bashPath(path)
             } catch (e: IllegalArgumentException) {
@@ -26,16 +30,18 @@ fun Uri.getBasePath(context: Context): String? {
                 null
             }
         }
-        isDownloadsDocument()   -> parseDownloadUriBasePath(context, uri = this)
-        else                    -> null
+
+        uri.isDownloadsDocument()   -> parseDownloadUriBasePath(context, uri = uri)
+        else                        -> null
     }
 }
 
-fun Uri.getAbsolutePath(context: Context): String? {
+
+fun absolutePathOf(context: Context, uri: Uri): String? {
     return when {
-        isDocumentProviderUri() -> documentProviderUriAbsolutePath(uri = this, context)
-        isRawFile()             -> path
-        else                    -> null
+        uri.isDocumentProviderUri() -> documentProviderUriAbsolutePath(uri = uri, context)
+        uri.isRawFile()             -> uri.path
+        else                        -> null
     }
 }
 
@@ -48,7 +54,7 @@ private fun parseDownloadUriBasePath(context: Context, uri: Uri): String? {
     // content://com.android.providers.downloads.documents/tree/downloads/document/raw:/storage/emulated/0/Download/Denai
     return when {
         // API 26 - 27 => content://com.android.providers.downloads.documents/document/22
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.P  -> {
+        SDK_INT < VERSION_CODES.P  -> {
             if (path.matches(Regex("/document/\\d+"))) {
                 val fileName =
                     context.contentResolver.query(
@@ -69,11 +75,13 @@ private fun parseDownloadUriBasePath(context: Context, uri: Uri): String? {
                 "${Environment.DIRECTORY_DOWNLOADS}/$fileName"
             } else null
         }
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+
+        SDK_INT >= VERSION_CODES.Q -> {
             Log.e("Storage", "unsupported path: $path")
             null
         }
-        else                                           ->
+
+        else                       ->
             path.substringAfterLast(primaryExternalStoragePath, "").trim('/')
     }
 }
