@@ -100,6 +100,7 @@ publishing {
 
             pom {
                 name.set("Android Storage Utilities")
+                description.set("An Android library is designed for parsing document uri and simplify usage of SAF.")
                 url.set("https://github.com/chr56/AndroidStorageUtilities")
 
                 licenses {
