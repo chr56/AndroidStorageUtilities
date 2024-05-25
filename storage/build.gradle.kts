@@ -123,6 +123,26 @@ publishing {
             }
         }
     }
+    repositories {
+        maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            name = "Ossrh"
+            if (secretPropsFile.exists()) {
+                credentials {
+                    username = secrets["sonatype_username"] as String
+                    password = secrets["sonatype_password"] as String
+                }
+            }
+        }
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+            name = "OssrhSnapshot"
+            if (secretPropsFile.exists()) {
+                credentials {
+                    username = secrets["sonatype_username"] as String
+                    password = secrets["sonatype_password"] as String
+                }
+            }
+        }
+    }
 }
 
 if (secretPropsFile.exists()) {
