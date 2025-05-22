@@ -8,6 +8,7 @@ import lib.storage.guessDocumentUri
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
@@ -93,7 +94,7 @@ object SAFActivityResultContracts {
         }
     }
 
-    private fun canceled(e: Throwable) {
+    private fun canceled(e: Throwable, value: Uri, context: CoroutineContext) {
         Log.i(TAG, "Canceled!")
         Log.v(TAG, "${e.message}\n${e.stackTraceToString()}")
     }
