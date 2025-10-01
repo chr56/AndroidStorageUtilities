@@ -14,8 +14,7 @@ plugins {
 val libVersion = "0.3.1"
 
 android {
-    compileSdk = 35
-    buildToolsVersion = "35.0.0"
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
